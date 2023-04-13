@@ -27,7 +27,9 @@
   ],
   "scripts": {
     "build": "node res/scripts/build.js",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "vitest --run ./test"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "13.0.2",
@@ -38,6 +40,8 @@
     "eslint-plugin-prettier": "3.4.0",
     "prettier": "1.19.1",
     "rollup": "2.79.1",
+    "vite": "4.2.1",
+    "vitest": "0.30.1"
   },
   "keywords": [
     "vite",
