@@ -1,0 +1,50 @@
+{
+  "name": "vite-plugin-allowed-hosts",
+  "version": "1.0.0",
+  "description": "List hosts allowed to access Vite dev server",
+  "author": "Eliott Vincent <dev@eliottvincent.com>",
+  "homepage": "https://github.com/eliottvincent/vite-plugin-allowed-hosts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/eliottvincent/vite-plugin-allowed-hosts"
+  },
+  "bugs": {
+    "url": "https://github.com/eliottvincent/vite-plugin-allowed-hosts/issues"
+  },
+  "main": "dist/vite-plugin-allowed-hosts.cjs.js",
+  "module": "dist/vite-plugin-allowed-hosts.esm-bundler.js",
+  "browser": "dist/vite-plugin-allowed-hosts.esm-browser.js",
+  "exports": {
+    ".": {
+      "module": "./dist/vite-plugin-allowed-hosts.esm-bundler.js",
+      "require": "./dist/vite-plugin-allowed-hosts.cjs.js",
+      "import": "./dist/vite-plugin-allowed-hosts.mjs"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node res/scripts/build.js",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "13.0.2",
+    "@rollup/plugin-node-resolve": "15.0.1",
+    "@rollup/plugin-replace": "5.0.02",
+    "@rollup/plugin-terser": "0.2.1",
+    "eslint": "7.27.0",
+    "eslint-plugin-prettier": "3.4.0",
+    "prettier": "1.19.1",
+    "rollup": "2.79.1",
+  },
+  "keywords": [
+    "vite",
+    "server",
+    "allowed",
+    "hosts",
+    "vue"
+  ],
+  "license": "MIT"
+}
