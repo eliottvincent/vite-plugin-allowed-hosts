@@ -8,7 +8,7 @@ var LOCALHOSTS = [
   "localhost",
   "127.0.0.1",
   "::1",
-  "0000:0000:0000:0000:0000:0000:0000:0001",
+  "0000:0000:0000:0000:0000:0000:0000:0001"
 ];
 
 /**
@@ -39,7 +39,7 @@ var bindServer = function(server, options, config) {
  * @return {boolean} Whether host header check passed or not
  */
 var __checkHostHeader = function(headers, options, config) {
-  const hosts = options.hosts;
+  let hosts = options.hosts;
 
   // Allow user to opt out of this security check, at their own risk
   if (hosts === "all") {
@@ -90,8 +90,13 @@ var __checkHostHeader = function(headers, options, config) {
     return true;
   }
 
+  // Encapsulate in array if needed
+  if (hosts && !Array.isArray(hosts)) {
+    hosts = [hosts];
+  }
+
   // Allow if hostname is in 'hosts'
-  if (Array.isArray(hosts) && hosts.length > 0) {
+  if (hosts && Array.isArray(hosts) && hosts.length > 0) {
     for (let i = 0; i < hosts.length; i++) {
       const host = hosts[i];
 
