@@ -1,7 +1,7 @@
 import { createServer } from "vite";
 import request from "supertest";
 
-import pluginAllowedHosts from "./../src/";
+import pluginAllowedHosts from "./../src/index.js";
 
 const DEFAULT_HOST = "localhost";
 const DEFAULT_PORT = 5173;

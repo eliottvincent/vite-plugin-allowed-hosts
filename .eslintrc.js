@@ -4,6 +4,10 @@ module.exports = {
     sourceType: "module"
   },
 
+  env: {
+    browser: true
+  },
+
   extends: ["eslint:recommended", "prettier"],
   plugins: ["prettier"],
 
