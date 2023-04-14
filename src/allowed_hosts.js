@@ -1,6 +1,6 @@
 import { bindServer } from "./plugin";
 
-var plugin = function(options) {
+var pluginAllowedHosts = function(options) {
   let config;
 
   return {
@@ -18,6 +18,6 @@ var plugin = function(options) {
 };
 
 
-export default plugin;
+export default pluginAllowedHosts;
 
-export { plugin };
+export { pluginAllowedHosts };

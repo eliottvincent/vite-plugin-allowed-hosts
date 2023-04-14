@@ -1,3 +1,6 @@
+import url from "url";
+import ipaddr from "ipaddr.js";
+
 var ALLOWED_PROTOCOLS_REGEX = /^(file|.+-extension):/i;
 var HOST_SCHEME_REGEX = /^(.+:)?\/\//;
 
@@ -22,7 +25,8 @@ var bindServer = function(server, options, config) {
       return next();
     }
 
-    res.send("Invalid Host header");
+    res.statusCode = 400;
+    res.end("Invalid Host header");
   });
 };
 
@@ -97,7 +101,7 @@ var __checkHostHeader = function(headers, options, config) {
       }
 
       // Check wildcard match (e.g. '.acme.com' will allow 'acme.com', \
-      //   'www.acme.com', 'subdomain.acme.com', etc)
+      //   'www.acme.com', 'sub.acme.com', etc)
       if (host[0] === ".") {
         if (hostname === host.substring(1) || (hostname).endsWith(host)) {
           return true;
