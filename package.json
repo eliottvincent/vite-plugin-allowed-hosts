@@ -40,6 +40,7 @@
     "@rollup/plugin-replace": "5.0.02",
     "@rollup/plugin-terser": "0.2.1",
     "eslint": "7.27.0",
+    "eslint-config-prettier": "8.8.0",
     "eslint-plugin-prettier": "3.4.0",
     "prettier": "1.19.1",
     "rollup": "2.79.1",
