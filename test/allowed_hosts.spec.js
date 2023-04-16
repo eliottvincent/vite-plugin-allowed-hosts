@@ -1,7 +1,9 @@
 import os from "os";
 import { describe, it, expect, afterEach } from "vitest";
 
-import { initServer, destroyServer, sendRequest } from "./helpers.js";
+import {
+  initServer, destroyServer, sendRequest, overrideDNSLookup, restoreDNSLookup
+} from "./helpers.js";
 
 const TEST_TIMEOUT = 20000; // 20 seconds
 
@@ -18,10 +20,10 @@ const LOCALHOSTS = [
   "0000:0000:0000:0000:0000:0000:0000:0001",
 ];
 
-const VALID_HOST_STATUS = 200;
-const VALID_HOST_TEXT = "Hello World";
-const INVALID_HOST_STATUS = 400;
-const INVALID_HOST_TEXT = "Invalid Host header";
+const OK_STATUS = 200;
+const OK_TEXT = "Hello World";
+const BAD_REQUEST_STATUS = 400;
+const BAD_REQUEST_TEXT = "Invalid Host header";
 
 // Always destroy the server after each test, to avoid dangling connections \
 //   (this will run even when a test fails)
@@ -31,132 +33,122 @@ afterEach(async () => {
 
 describe("basic behavior", () => {
   it("should allow all requests - 'hosts' set to 'all'", async () => {
-    const server = await initServer("all");
+    await initServer("all");
 
-    const defaultRes = await sendRequest(server);
-    expect(defaultRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(defaultRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const defaultRes = await sendRequest();
+    expect(defaultRes.statusCode).toBe(OK_STATUS);
+    expect(defaultRes.text.includes(OK_TEXT)).toBe(true);
 
-    const ipv4Res = await sendRequest(server, HOST_IPV4);
-    expect(ipv4Res.statusCode).toBe(VALID_HOST_STATUS);
-    expect(ipv4Res.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const ipv4Res = await sendRequest(HOST_IPV4);
+    expect(ipv4Res.statusCode).toBe(OK_STATUS);
+    expect(ipv4Res.text.includes(OK_TEXT)).toBe(true);
 
-    const ipv6Res = await sendRequest(server, HOST_IPV6);
-    expect(ipv6Res.statusCode).toBe(VALID_HOST_STATUS);
-    expect(ipv6Res.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const ipv6Res = await sendRequest(HOST_IPV6);
+    expect(ipv6Res.statusCode).toBe(OK_STATUS);
+    expect(ipv6Res.text.includes(OK_TEXT)).toBe(true);
 
-    const domainRes = await sendRequest(server, HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(OK_STATUS);
+    expect(domainRes.text.includes(OK_TEXT)).toBe(true);
 
-    const subDomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-    expect(subDomainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(subDomainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const subDomainRes = await sendRequest(HOST_SUBDOMAIN);
+    expect(subDomainRes.statusCode).toBe(OK_STATUS);
+    expect(subDomainRes.text.includes(OK_TEXT)).toBe(true);
   }, TEST_TIMEOUT);
 
   it("should not allow a request - empty 'host' header", async () => {
-    const server = await initServer();
+    await initServer();
 
-    const res = await sendRequest(server, "");
-    expect(res.statusCode).toEqual(INVALID_HOST_STATUS);
-    expect(res.text).toEqual(INVALID_HOST_TEXT);
+    const res = await sendRequest("");
+    expect(res.statusCode).toEqual(BAD_REQUEST_STATUS);
+    expect(res.text).toEqual(BAD_REQUEST_TEXT);
   }, TEST_TIMEOUT);
 
   it("should allow a request - same 'host' as Vite server", async () => {
-    // Use the hostname of the current OS, this avoids setting up a dedicated \
-    //   network interface
-    const host = os.hostname().toLowerCase();
+    // Force DNS lookup to resolve 'acme.com' as localhost, that way we can \
+    //   virtually bind the server to 'acme.com' and proceed to requests to it
+    overrideDNSLookup(HOST_DOMAIN, "127.0.0.1");
 
-    // Configure Vite server with custom hostname
-    const server = await initServer([], host);
+    // Bind Vite server to 'acme.com'
+    await initServer([], HOST_DOMAIN);
 
-    // Proceed to request with the same hostname
-    const domainRes = await sendRequest(server, host);
-    expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    // Proceed to request with 'acme.com' as host header
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(OK_STATUS);
+    expect(domainRes.text.includes(OK_TEXT)).toBe(true);
+
+    // Restore original DNS lookup behavior
+    restoreDNSLookup();
   }, TEST_TIMEOUT);
 
   it("should allow localhost and IP requests - no 'hosts'", async () => {
-    const server = await initServer();
+    await initServer();
 
-    const defaultRes = await sendRequest(server);
-    expect(defaultRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(defaultRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const defaultRes = await sendRequest();
+    expect(defaultRes.statusCode).toBe(OK_STATUS);
+    expect(defaultRes.text.includes(OK_TEXT)).toBe(true);
 
     // Test all localhost variants
     await Promise.all(LOCALHOSTS.map(async (localhost) => {
-      const localhostRes = await sendRequest(server, localhost);
-      expect(localhostRes.statusCode).toBe(VALID_HOST_STATUS);
-      expect(localhostRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+      const localhostRes = await sendRequest(localhost);
+      expect(localhostRes.statusCode).toBe(OK_STATUS);
+      expect(localhostRes.text.includes(OK_TEXT)).toBe(true);
     }));
 
-    const ipv4Res = await sendRequest(server, HOST_IPV4);
-    expect(ipv4Res.statusCode).toBe(VALID_HOST_STATUS);
-    expect(ipv4Res.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const ipv4Res = await sendRequest(HOST_IPV4);
+    expect(ipv4Res.statusCode).toBe(OK_STATUS);
+    expect(ipv4Res.text.includes(OK_TEXT)).toBe(true);
 
-    const ipv6Res = await sendRequest(server, HOST_IPV6);
-    expect(ipv6Res.statusCode).toBe(VALID_HOST_STATUS);
-    expect(ipv6Res.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const ipv6Res = await sendRequest(HOST_IPV6);
+    expect(ipv6Res.statusCode).toBe(OK_STATUS);
+    expect(ipv6Res.text.includes(OK_TEXT)).toBe(true);
 
-    const domainRes = await sendRequest(server, HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(INVALID_HOST_STATUS);
-    expect(domainRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(BAD_REQUEST_STATUS);
+    expect(domainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
 
-    const subDomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-    expect(subDomainRes.statusCode).toBe(INVALID_HOST_STATUS);
-    expect(subDomainRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
-  }, TEST_TIMEOUT);
-
-  it("should allow requests with correct hostname - 'hosts' string", async () => {
-    const server = await initServer(HOST_DOMAIN);
-
-    const domainRes = await sendRequest(server, HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
-
-    const subdomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-    expect(subdomainRes.statusCode).toBe(INVALID_HOST_STATUS);
-    expect(subdomainRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
+    const subDomainRes = await sendRequest(HOST_SUBDOMAIN);
+    expect(subDomainRes.statusCode).toBe(BAD_REQUEST_STATUS);
+    expect(subDomainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
   }, TEST_TIMEOUT);
 
   it("should allow requests with correct hostname - 'hosts' set to 'acme.com'", async () => {
-    const server = await initServer([HOST_DOMAIN]);
+    await initServer(HOST_DOMAIN);
 
-    const domainRes = await sendRequest(server, HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(OK_STATUS);
+    expect(domainRes.text.includes(OK_TEXT)).toBe(true);
 
-    const subdomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-    expect(subdomainRes.statusCode).toBe(INVALID_HOST_STATUS);
-    expect(subdomainRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
+    const subdomainRes = await sendRequest(HOST_SUBDOMAIN);
+    expect(subdomainRes.statusCode).toBe(BAD_REQUEST_STATUS);
+    expect(subdomainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
   }, TEST_TIMEOUT);
 
   it("should allow requests with correct hostname - 'hosts' set to ['acme.com']", async () => {
-    const server = await initServer([HOST_DOMAIN]);
+    await initServer([HOST_DOMAIN]);
 
-    const domainRes = await sendRequest(server, HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-    expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(OK_STATUS);
+    expect(domainRes.text.includes(OK_TEXT)).toBe(true);
 
-    const subdomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-    expect(subdomainRes.statusCode).toBe(INVALID_HOST_STATUS);
-    expect(subdomainRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
+    const subdomainRes = await sendRequest(HOST_SUBDOMAIN);
+    expect(subdomainRes.statusCode).toBe(BAD_REQUEST_STATUS);
+    expect(subdomainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
   }, TEST_TIMEOUT);
 
+  it("should allow requests with correct hostname - 'hosts' set to ['.acme.com']", async () => {
+    await initServer([HOST_WILDCARD]);
 
-    it("should allow requests with correct hostname - 'hosts' set to ['.acme.com']", async () => {
-      const server = await initServer([HOST_WILDCARD]);
+    const domainRes = await sendRequest(HOST_DOMAIN);
+    expect(domainRes.statusCode).toBe(OK_STATUS);
+    expect(domainRes.text.includes(OK_TEXT)).toBe(true);
 
-      const domainRes = await sendRequest(server, HOST_DOMAIN);
-      expect(domainRes.statusCode).toBe(VALID_HOST_STATUS);
-      expect(domainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
+    const subdomainRes = await sendRequest(HOST_SUBDOMAIN);
+    expect(subdomainRes.statusCode).toBe(OK_STATUS);
+    expect(subdomainRes.text.includes(OK_TEXT)).toBe(true);
 
-      const subdomainRes = await sendRequest(server, HOST_SUBDOMAIN);
-      expect(subdomainRes.statusCode).toBe(VALID_HOST_STATUS);
-      expect(subdomainRes.text.includes(VALID_HOST_TEXT)).toBe(true);
-
-      const fooBarRes = await sendRequest(server, "foo.bar");
-      expect(fooBarRes.statusCode).toBe(INVALID_HOST_STATUS);
-      expect(fooBarRes.text.includes(INVALID_HOST_TEXT)).toBe(true);
-    }, TEST_TIMEOUT);
+    const fooBarRes = await sendRequest("foo.bar");
+    expect(fooBarRes.statusCode).toBe(BAD_REQUEST_STATUS);
+    expect(fooBarRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+  }, TEST_TIMEOUT);
 });
