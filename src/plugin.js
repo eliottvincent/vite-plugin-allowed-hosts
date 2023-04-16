@@ -25,7 +25,7 @@ var bindServer = function(server, options, config) {
       return next();
     }
 
-    res.statusCode = 400;
+    res.statusCode = 403;
     res.end("Invalid Host header");
   });
 };

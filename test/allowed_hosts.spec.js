@@ -33,8 +33,8 @@ const LOCALHOSTS = [
 
 const OK_STATUS = 200;
 const OK_TEXT = "Hello World";
-const BAD_REQUEST_STATUS = 400;
-const BAD_REQUEST_TEXT = "Invalid Host header";
+const FORBIDDEN_STATUS = 403;
+const FORBIDDEN_TEXT = "Invalid Host header";
 
 describe("server with no 'hosts'", () => {
   beforeAll(async () => {
@@ -61,12 +61,12 @@ describe("server with no 'hosts'", () => {
 
   it("should not allow domain and subdomain", async () => {
     const domainRes = await sendRequest(HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(domainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(domainRes.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(domainRes.text.includes(FORBIDDEN_TEXT)).toBe(true);
 
     const subDomainRes = await sendRequest(HOST_SUBDOMAIN);
-    expect(subDomainRes.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(subDomainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(subDomainRes.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(subDomainRes.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   // Destroy the server to avoid dangling connections (this will run even \
@@ -83,12 +83,12 @@ describe("server with empty 'hosts'", () => {
 
   it("should not allow domain and subdomain", async () => {
     const domainRes = await sendRequest(HOST_DOMAIN);
-    expect(domainRes.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(domainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(domainRes.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(domainRes.text.includes(FORBIDDEN_TEXT)).toBe(true);
 
     const subDomainRes = await sendRequest(HOST_SUBDOMAIN);
-    expect(subDomainRes.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(subDomainRes.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(subDomainRes.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(subDomainRes.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   // Destroy the server to avoid dangling connections (this will run even \
@@ -149,14 +149,14 @@ describe("server with 'hosts' set to 'acme.com'", () => {
 
   it("should not allow subdomain", async () => {
     const res = await sendRequest(HOST_SUBDOMAIN);
-    expect(res.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(res.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(res.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(res.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   it("should not allow non-matching domain", async () => {
     const res = await sendRequest("foo.bar");
-    expect(res.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(res.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(res.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(res.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   // Destroy the server to avoid dangling connections (this will run even \
@@ -179,8 +179,8 @@ describe("server with 'hosts' set to ['acme.com']", () => {
 
   it("should not allow subdomain", async () => {
     const res = await sendRequest(HOST_SUBDOMAIN);
-    expect(res.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(res.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(res.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(res.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   // Destroy the server to avoid dangling connections (this will run even \
@@ -205,8 +205,8 @@ describe("server with 'hosts' set to ['acme.com', 'emca.com']", () => {
 
   it("should not allow subdomain", async () => {
     const res = await sendRequest(HOST_SUBDOMAIN);
-    expect(res.statusCode).toBe(BAD_REQUEST_STATUS);
-    expect(res.text.includes(BAD_REQUEST_TEXT)).toBe(true);
+    expect(res.statusCode).toBe(FORBIDDEN_STATUS);
+    expect(res.text.includes(FORBIDDEN_TEXT)).toBe(true);
   });
 
   // Destroy the server to avoid dangling connections (this will run even \
@@ -255,8 +255,8 @@ describe("request with empty 'host' header", () => {
 
   it("should not allow the request", async () => {
     const res = await sendRequest("");
-    expect(res.statusCode).toEqual(BAD_REQUEST_STATUS);
-    expect(res.text).toEqual(BAD_REQUEST_TEXT);
+    expect(res.statusCode).toEqual(FORBIDDEN_STATUS);
+    expect(res.text).toEqual(FORBIDDEN_TEXT);
   });
 
   afterAll(async () => {
