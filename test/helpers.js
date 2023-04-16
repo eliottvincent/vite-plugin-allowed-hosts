@@ -10,7 +10,7 @@ const ORIGINAL_DNS_LOOKUP = dns.lookup;
 const DEFAULT_HOST = "localhost";
 const DEFAULT_PORT = 5173;
 
-const TEMPORIZE_DELAY = 5000; // 5 seconds
+const TEMPORIZE_DELAY = 2000; // 2 seconds
 
 let currentServer;
 

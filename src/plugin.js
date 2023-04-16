@@ -39,7 +39,7 @@ var bindServer = function(server, options, config) {
  * @return {boolean} Whether host header check passed or not
  */
 var __checkHostHeader = function(headers, options, config) {
-  let hosts = options.hosts;
+  let hosts = __parseHosts(options);
 
   // Allow user to opt out of this security check, at their own risk
   if (hosts === "all") {
@@ -82,17 +82,12 @@ var __checkHostHeader = function(headers, options, config) {
     return true;
   }
 
-  // Always allow requests with explicit IPv4 or IPv6-address
+  // Always allow requests with explicit IPv4 or IPv6 address
   // Notice: hostHeader will always contain the brackets denoting an \
   //   IPv6-address in URLs, these are removed from the hostname by \
   //   `url.parse()`, so we end up with the pure IPv6-address in hostname.
   if (ipaddr.IPv4.isValid(hostname) || ipaddr.IPv6.isValid(hostname)) {
     return true;
-  }
-
-  // Encapsulate in array if needed
-  if (hosts && !Array.isArray(hosts)) {
-    hosts = [hosts];
   }
 
   // Allow if hostname is in 'hosts'
@@ -117,6 +112,28 @@ var __checkHostHeader = function(headers, options, config) {
 
   // Disallow
   return false;
+};
+
+/**
+ * Parses hosts from options
+ * @private
+ * @param  {object}        options
+ * @return {string|objectstring} Parsed hosts
+ */
+var __parseHosts = function(options) {
+  let hosts = options.hosts;
+
+  // Allow some default hosts
+  if (typeof hosts === "undefined") {
+    hosts = "auto";
+  }
+
+  // Encapsulate in array when supplied as string
+  else if (typeof hosts === "string" && hosts !== "auto" &&  hosts !== "all") {
+    hosts = [hosts];
+  }
+
+  return hosts;
 };
 
 export { bindServer };
