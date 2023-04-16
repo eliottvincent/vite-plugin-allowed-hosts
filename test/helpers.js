@@ -7,7 +7,7 @@ import pluginAllowedHosts from "./../src/index.js";
 
 const ORIGINAL_DNS_LOOKUP = dns.lookup;
 
-const DEFAULT_HOST = "127.0.0.1";
+const DEFAULT_HOST = "localhost";
 const DEFAULT_PORT = 5173;
 
 const TEMPORIZE_DELAY = 5000; // 5 seconds
@@ -23,6 +23,9 @@ let currentServer;
  * @return {object} Promise object
  */
 var initServer = async function(hosts, serverHost = null, serverPort = null) {
+  // Node.js 17 prefers IPv6 when resolving, we want IPv4
+  dns.setDefaultResultOrder("ipv4first");
+
   currentServer = await createServer({
     configFile: false,
     envFile: false,
@@ -65,13 +68,13 @@ var destroyServer = async function() {
  * Overrides DNS lookup
  * @public
  * @param  {string} host
- * @param  {string} ip
+ * @param  {string} redirect
  * @return {object} Promise object
  */
-var overrideDNSLookup = function(host, ip) {
+var overrideDNSLookup = function(host, redirect) {
   dns.lookup = function(domain, callback) {
     if (domain === host) {
-      return callback(null, ip, 4); // 4 = IPv4
+      return ORIGINAL_DNS_LOOKUP.call(this, redirect, callback);
     }
 
     return ORIGINAL_DNS_LOOKUP.call(this, domain, callback);
