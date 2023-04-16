@@ -7,7 +7,7 @@ import pluginAllowedHosts from "./../src/index.js";
 
 const ORIGINAL_DNS_LOOKUP = dns.lookup;
 
-const DEFAULT_HOST = "localhost";
+const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 5173;
 
 const TEMPORIZE_DELAY = 5000; // 5 seconds
