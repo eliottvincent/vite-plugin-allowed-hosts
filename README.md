@@ -16,11 +16,11 @@ In a [DNS rebinding attack](https://en.wikipedia.org/wiki/DNS_rebinding), an att
 
 ```js
 // vite.config.js
-import pluginAllowedHosts from "vite-plugin-allowed-hosts";
+import allowedHostsPlugin from "vite-plugin-allowed-hosts";
 
 export default {
   plugins: [
-    pluginAllowedHosts({
+    allowedHostsPlugin({
       hosts: ["acme.com", ".dev.acme.com"]
     })
   ]
