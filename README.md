@@ -35,7 +35,7 @@ export default {
 - **Type:** `'auto' | 'all' | string | string[]`
 - **Default:** `'auto'`
 
-  When set to `'auto'`, it will always allow `localhost` and `[server.host](https://vitejs.dev/config/server-options.html#server-host)`.
+  When set to `'auto'`, it will always allow `localhost` and [`server.host`](https://vitejs.dev/config/server-options.html#server-host).
 
   When set to `'all'`, no header check will be done. This is obviously **not recommended**.
 
