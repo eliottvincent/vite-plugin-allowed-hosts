@@ -1,5 +1,5 @@
-const fs = require("fs");
-const spawn = require("child_process").spawn;
+import fs from "fs";
+import { spawn } from "child_process";
 
 async function run() {
   await Promise.all([build(), copy()]);

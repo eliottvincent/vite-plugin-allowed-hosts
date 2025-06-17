@@ -3,10 +3,10 @@ import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 
-import pkg from "./package.json";
+import projectPackage from "./package.json" assert { type: "json" };
 
 const banner = `/*!
- * vite-plugin-allowed-hosts v${pkg.version}
+ * vite-plugin-allowed-hosts v${projectPackage.version}
  * (c) ${new Date().getFullYear()} Eliott Vincent
  * @license MIT
  */`;
