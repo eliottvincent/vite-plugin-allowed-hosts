@@ -1,6 +1,6 @@
 import { bindServer } from "./plugin";
 
-var pluginAllowedHosts = function(options) {
+var pluginAllowedHosts = function (options) {
   let config;
 
   return {
@@ -8,15 +8,14 @@ var pluginAllowedHosts = function(options) {
     apply: "serve",
 
     configResolved(resolvedConfig) {
-      config = resolvedConfig
+      config = resolvedConfig;
     },
 
     configureServer(server) {
       bindServer(server, options, config);
     }
-  }
+  };
 };
-
 
 export default pluginAllowedHosts;
 

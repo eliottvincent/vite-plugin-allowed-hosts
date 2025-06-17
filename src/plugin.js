@@ -4,12 +4,7 @@ import ipaddr from "ipaddr.js";
 var ALLOWED_PROTOCOLS_REGEX = /^(file|.+-extension):/i;
 var HOST_SCHEME_REGEX = /^(.+:)?\/\//;
 
-var LOCALHOSTS = [
-  "localhost",
-  "127.0.0.1",
-  "::1",
-  "0000:0000:0000:0000:0000:0000:0000:0001"
-];
+var LOCALHOSTS = ["localhost", "127.0.0.1", "::1", "0000:0000:0000:0000:0000:0000:0000:0001"];
 
 /**
  * Binds server middleware
@@ -19,7 +14,7 @@ var LOCALHOSTS = [
  * @param  {object} config
  * @return {undefined}
  */
-var bindServer = function(server, options, config) {
+var bindServer = function (server, options, config) {
   server.middlewares.use((req, res, next) => {
     if (__checkHostHeader(req.headers, options, config)) {
       return next();
@@ -38,7 +33,7 @@ var bindServer = function(server, options, config) {
  * @param  {object}  config
  * @return {boolean} Whether host header check passed or not
  */
-var __checkHostHeader = function(headers, options, config) {
+var __checkHostHeader = function (headers, options, config) {
   let hosts = __parseHosts(options);
 
   // Allow user to opt out of this security check, at their own risk
@@ -103,7 +98,7 @@ var __checkHostHeader = function(headers, options, config) {
       // Check wildcard match (e.g. '.acme.com' will allow 'acme.com', \
       //   'www.acme.com', 'sub.acme.com', etc)
       if (host[0] === ".") {
-        if (hostname === host.substring(1) || (hostname).endsWith(host)) {
+        if (hostname === host.substring(1) || hostname.endsWith(host)) {
           return true;
         }
       }
@@ -120,7 +115,7 @@ var __checkHostHeader = function(headers, options, config) {
  * @param  {object}        options
  * @return {string|objectstring} Parsed hosts
  */
-var __parseHosts = function(options) {
+var __parseHosts = function (options) {
   let hosts = options.hosts;
 
   // Allow some default hosts
@@ -129,7 +124,7 @@ var __parseHosts = function(options) {
   }
 
   // Encapsulate in array when supplied as string
-  else if (typeof hosts === "string" && hosts !== "auto" &&  hosts !== "all") {
+  else if (typeof hosts === "string" && hosts !== "auto" && hosts !== "all") {
     hosts = [hosts];
   }
 
