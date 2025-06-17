@@ -4,6 +4,12 @@
 
 > Specify a list of hosts that are allowed to access your Vite dev server.
 
+# ⚠️ DEPRECATED
+
+This plugin is now deprecated as Vite provides a native option for this functionality since version 5.4.12.
+
+Please use Vite's built-in [`server.allowedHosts`](htthttps://vite.dev/config/server-options.html#server-allowedhosts) option instead.
+
 
 ## Motivation
 
