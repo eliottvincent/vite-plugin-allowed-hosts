@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-allowed-hosts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "List hosts allowed to access Vite dev server",
   "author": "Eliott Vincent <dev@eliottvincent.com>",
   "homepage": "https://github.com/eliottvincent/vite-plugin-allowed-hosts",
